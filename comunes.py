@@ -1,4 +1,4 @@
-debug = true
+debug = True
 
 def Log(msg):
     if debug:

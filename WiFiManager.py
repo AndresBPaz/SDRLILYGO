@@ -10,22 +10,23 @@ class WiFiManager:
     def __init__(self, ssid, password):
         self.ssid = ssid
         self.password = password
+        self.sta_if = n.WLAN(n.STA_IF)
 
-    def conectar():
-        wlan = n.WLAN(n.STA_IF)
-        wlan.active(True)
-        wlan.connect(SSID, PASSWORD)
-        c.Log("Conectando al Wi-Fi...")
-        while not wlan.isconnected():
-            t.sleep(1)
-            c.Log("Intentando conexión...")
-        c.Log("Conexión establecida:", wlan.ifconfig())
-        return wlan.ifconfig()[0]  # Retorna la IP del ESP32
+    def conectar(self):  
+        if not self.sta_if.isconnected():
+            print(f"Conectando a la red {self.ssid}...")
+            self.sta_if.active(True)
+            self.sta_if.connect(self.ssid, self.password)
+            while not self.sta_if.isconnected():
+                pass
+        c.Log(f"Conexión establecida: {self.getIP()}")
+        return True  # Retorna la IP del ESP32
 
-    def desconectar():
-        wlan = n.WLAN(n.STA_IF)
-        wlan.active(False)
+    def desconectar(self): 
+        self.sta_if.active(False)
 
-    def estado():
-        wlan = n.WLAN(n.STA_IF)
-        return wlan.isconnected()
+    def estado(self): 
+        return self.sta_if.isconnected()
+    
+    def getIP(self): 
+        return self.sta_if.ipconfig("addr4")[0]
