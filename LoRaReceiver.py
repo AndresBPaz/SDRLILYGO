@@ -49,7 +49,7 @@ class LoRaReceiver:
         }
 
         # Inicialización del módulo LoRa con los parámetros adecuados
-        self.lora = SX127x(self.lora_spi, pins=self.lora_pins, parameters=self.lora_default)
+        self.LORA = SX127x(self.lora_spi, pins=self.lora_pins, parameters=self.lora_default)
         c.Log("Inicializando LoRa...")
         self.received_data = []
 
@@ -72,6 +72,9 @@ class LoRaReceiver:
                     data = packet.decode('utf-8', 'ignore')
                     self.received_data.append(data)
                     print(f"Paquete recibido: {data}")
+                    payload = LORA.readPayload().decode()
+                    rssi = LORA.packetRssi()
+                    print("RX: {} | RSSI: {}".format(payload, rssi))
                 return packet
         except Exception as e:
             print(f"Error al recibir paquete: {e}")
@@ -81,9 +84,9 @@ class LoRaReceiver:
         return self.received_data[-10:]
 
     def set_frequency(self, frequency):
-        self.lora.set_frequency(frequency)
+        self.LORA.set_frequency(frequency)
         print(f"Frecuencia configurada a {frequency} Hz")
 
     def set_bandwidth(self, bandwidth):
-        self.lora.set_bandwidth(bandwidth)
+        self.LORA.set_bandwidth(bandwidth)
         print(f"Ancho de banda configurado a {bandwidth} Hz")
