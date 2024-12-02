@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SDR LoRa</title>
+    <script>
+        let socket;
+
+        function connectWebSocket() {
+            socket = new WebSocket(`ws://${location.hostname}:81/`);
+
+            socket.onopen = () => {
+                console.log("Conectado al servidor WebSocket");
+            };
+
+            socket.onmessage = (event) => {
+                const packetsDiv = document.getElementById('packets');
+                packetsDiv.innerHTML = '';
+                const packets = JSON.parse(event.data);
+                packets.forEach(packet => {
+                    const p = document.createElement('p');
+                    p.textContent = packet;
+                    packetsDiv.appendChild(p);
+                });
+            };
+
+            socket.onclose = () => {
+                console.log("Desconectado del servidor WebSocket. Reintentando...");
+                setTimeout(connectWebSocket, 2000); // Reintenta la conexión
+            };
+
+            socket.onerror = (error) => {
+                console.error("Error en WebSocket:", error);
+            };
+        }
+
+        window.onload = connectWebSocket;
+    </script>
+</head>
+<body>
+    <h1>SDR LoRa</h1>
+    <form onsubmit="configureLoRa(); return false;">
+        <label for="frequency">Frecuencia (Hz):</label>
+        <input type="number" id="frequency" value="915000000"><br>
+        <label for="bandwidth">Ancho de Banda (Hz):</label>
+        <input type="number" id="bandwidth" value="125000"><br>
+        <button type="submit">Configurar</button>
+    </form>
+    <button onclick="startScan()">Iniciar Escaneo</button>
+    <button onclick="stopScan()">Detener Escaneo</button>
+    <h2>Paquetes Recibidos:</h2>
+    <div id="packets">Esperando paquetes...</div>
+</body>
+</html>
